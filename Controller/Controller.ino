@@ -101,7 +101,7 @@ void switchTwoOpen(unsigned short keyNumber){
 
 byte calculateVelocity(unsigned long interval){
   #ifdef DEV
-    Serial.println(interval);
+    calcAverageVelocity(interval);
   #endif
   return 0x10;
 }
@@ -110,9 +110,7 @@ void noteOn(unsigned short keyNumber){
     byte stat = 0x90;
     byte velocity = 0x32;
 
-    #ifdef DEV
-      Serial.println("In dev mode");
-    #else
+    #ifndef DEV
       Serial.write(stat);
       Serial.write(keys[keyNumber].pitch);
       Serial.write(velocity);
@@ -122,11 +120,40 @@ void noteOn(unsigned short keyNumber){
 void noteOff(unsigned short keyNumber){
     byte stat = 0x80;
 
-    #ifdef DEV
-      Serial.println("In dev mode");
-    #else
+    #ifndef DEV
       Serial.write(stat);
       Serial.write(keys[keyNumber].pitch);
       Serial.write(0);
     #endif
 }
+
+#ifdef DEV
+void calcAverageVelocity(unsigned long interval){
+  vels[numVels] = interval;
+  numVels++;
+  unsigned long average, maxVel, minVel;
+  average = 0;
+  maxVel = vels[0];
+  minVel = vels[0];
+  for(int i = 0; i < numVels; i++){
+    average += vels[i];
+    if(maxVel < vels[i]){
+      maxVel = vels[i];
+    }
+    if(minVel > vels[i]){
+      minVel = vels[i];
+    }
+  }
+  average /= numVels;
+  Serial.println(BREAK);
+  Serial.print("Interval: ");
+  Serial.println(interval);
+  Serial.print("Average: ");
+  Serial.println(average);
+  Serial.print("Max: ");
+  Serial.println(maxVel);
+  Serial.print("Min: ");
+  Serial.println(minVel);
+  Serial.println(BREAK);
+}
+#endif

@@ -1,7 +1,7 @@
 #ifndef _CONTROLLER_H
 #define _CONTROLLER_H
 
-//#define DEV
+#define DEV
 
 /* Keyboard info */
 const int NUMBER_OF_DECODERS = 3;
@@ -35,5 +35,11 @@ struct KeyData{
   unsigned long t1;
   enum KeyState state;
 } keys[NUMBER_OF_KEYS];
+
+#ifdef DEV
+#define BREAK "-------------------------------"
+int numVels = 0;
+unsigned long vels[50];
+#endif
 
 #endif
