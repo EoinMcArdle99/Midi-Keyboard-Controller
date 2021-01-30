@@ -1,7 +1,7 @@
 #ifndef _CONTROLLER_H
 #define _CONTROLLER_H
 
-#define DEV
+//#define DEV
 
 /* Keyboard info */
 const int NUMBER_OF_DECODERS = 3;
@@ -40,6 +40,9 @@ struct KeyData{
 #define BREAK "-------------------------------"
 int numVels = 0;
 unsigned long vels[50];
+byte sustainedNotes[300];
+unsigned short numSustainedNote = 0;
+bool sustainOn = false;
 #endif
 
 #endif

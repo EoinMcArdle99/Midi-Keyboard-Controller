@@ -22,6 +22,7 @@ void setup(){
   }
 
   /* Set default key state. */
+  
   keySetup();
 
   /* Begin serial comms for midi output. */
@@ -87,73 +88,91 @@ void switchTwoClosed(unsigned short keyNumber){
   if(keys[keyNumber].state == KEY_GOING_DOWN){
     keys[keyNumber].state = KEY_DOWN;
     unsigned long interval = micros() - keys[keyNumber].t1;
-    byte velocity = calculateVelocity(interval);
-    noteOn(keyNumber);
+    noteOn(keyNumber, interval);
   }
 } 
 
 void switchTwoOpen(unsigned short keyNumber){
   if(keys[keyNumber].state == KEY_DOWN){
     keys[keyNumber].state = KEY_GOING_UP;
+      #ifndef DEV
+      noteOff(keyNumber);
+      #else
+      if(sustainOn){
+        sustainedNotes[numSustainedNote] = keys[keyNumber].pitch;
+        numSustainedNote++;
+      }else{
         noteOff(keyNumber);
+      }
+      #endif
   }
 }
 
 byte calculateVelocity(unsigned long interval){
   #ifdef DEV
-    calcAverageVelocity(interval);
+    //calcAverageVelocity(interval);
+    if(interval >= 100000){
+      Serial.println("ppp");
+      return 20;
+    }
+    else if(interval >= 60000){
+      Serial.println("pp");
+      return 31;
+    }
+    else if(interval >= 40000){
+      Serial.println("p");
+      return 42;
+    }
+    else if(interval >= 30000){
+      Serial.println("mp");
+      return 53;
+    }
+    else if(interval >= 21000){
+      Serial.println("mf");
+      return 64;
+    }
+    else if(interval >= 15000){
+      Serial.println("f");
+      return 80;
+    }
+    else{
+      Serial.println("ff-fff");
+      return 96;
+    }
+  #else
+    if(interval >= 100000){
+      return 20;
+    }
+    else if(interval >= 60000){
+      return 31;
+    }
+    else if(interval >= 40000){
+      return 42;
+    }
+    else if(interval >= 30000){
+      return 53;
+    }
+    else if(interval >= 21000){
+      return 64;
+    }
+    else if(interval >= 15000){
+      return 80;
+    }
+    return 96;
   #endif
-  return 0x10;
 }
 
-void noteOn(unsigned short keyNumber){
-    byte stat = 0x90;
+void noteOn(unsigned short keyNumber, unsigned long interval){
+    byte stat = 0x91;
     byte velocity = 0x32;
-
-    #ifndef DEV
-      Serial.write(stat);
-      Serial.write(keys[keyNumber].pitch);
-      Serial.write(velocity);
-    #endif
+    Serial.write(stat);
+    Serial.write(keys[keyNumber].pitch);
+    Serial.write(velocity);
 }
 
 void noteOff(unsigned short keyNumber){
-    byte stat = 0x80;
-
-    #ifndef DEV
-      Serial.write(stat);
-      Serial.write(keys[keyNumber].pitch);
-      Serial.write(0);
-    #endif
+    byte stat = 0x81;
+    Serial.write(stat);
+    Serial.write(keys[keyNumber].pitch);
+    Serial.write(0);
 }
-
-#ifdef DEV
-void calcAverageVelocity(unsigned long interval){
-  vels[numVels] = interval;
-  numVels++;
-  unsigned long average, maxVel, minVel;
-  average = 0;
-  maxVel = vels[0];
-  minVel = vels[0];
-  for(int i = 0; i < numVels; i++){
-    average += vels[i];
-    if(maxVel < vels[i]){
-      maxVel = vels[i];
-    }
-    if(minVel > vels[i]){
-      minVel = vels[i];
-    }
-  }
-  average /= numVels;
-  Serial.println(BREAK);
-  Serial.print("Interval: ");
-  Serial.println(interval);
-  Serial.print("Average: ");
-  Serial.println(average);
-  Serial.print("Max: ");
-  Serial.println(maxVel);
-  Serial.print("Min: ");
-  Serial.println(minVel);
-  Serial.println(BREAK);
-}
-#endif
