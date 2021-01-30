@@ -1,13 +1,17 @@
 #ifndef _CONTROLLER_H
 #define _CONTROLLER_H
 
-//#define DEV
-
 /* Keyboard info */
 const int NUMBER_OF_DECODERS = 3;
 const int NUMBER_OF_KEYS = 88;
 const int NUMBER_OF_DECODER_OUTPUTS = 8;
 const int NUMBER_OF_KEYS_PER_OUTPUT = 4;
+
+/* Midi info */
+const byte NOTE_ON = 0x90;
+const byte NOTE_OFF = 0x80;
+const byte VELOCITY = 60;
+const unsigned short BAUD_RATE = 31250;
 
 /* Select Key Bank (4 notes) */
 const int SELECT_A = A0;
@@ -35,14 +39,3 @@ struct KeyData{
   unsigned long t1;
   enum KeyState state;
 } keys[NUMBER_OF_KEYS];
-
-#ifdef DEV
-#define BREAK "-------------------------------"
-int numVels = 0;
-unsigned long vels[50];
-byte sustainedNotes[300];
-unsigned short numSustainedNote = 0;
-bool sustainOn = false;
-#endif
-
-#endif

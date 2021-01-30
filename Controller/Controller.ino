@@ -22,15 +22,10 @@ void setup(){
   }
 
   /* Set default key state. */
-  
   keySetup();
 
   /* Begin serial comms for midi output. */
-  #ifdef DEV
-    Serial.begin(9600);
-  #else
-    Serial.begin(31250);
-  #endif 
+  Serial.begin(BAUD_RATE);
 }
 
 /* Poll for key presses. */
@@ -88,91 +83,25 @@ void switchTwoClosed(unsigned short keyNumber){
   if(keys[keyNumber].state == KEY_GOING_DOWN){
     keys[keyNumber].state = KEY_DOWN;
     unsigned long interval = micros() - keys[keyNumber].t1;
-    noteOn(keyNumber, interval);
+    noteOn(keyNumber);
   }
 } 
 
 void switchTwoOpen(unsigned short keyNumber){
   if(keys[keyNumber].state == KEY_DOWN){
     keys[keyNumber].state = KEY_GOING_UP;
-      #ifndef DEV
       noteOff(keyNumber);
-      #else
-      if(sustainOn){
-        sustainedNotes[numSustainedNote] = keys[keyNumber].pitch;
-        numSustainedNote++;
-      }else{
-        noteOff(keyNumber);
-      }
-      #endif
   }
 }
 
-byte calculateVelocity(unsigned long interval){
-  #ifdef DEV
-    //calcAverageVelocity(interval);
-    if(interval >= 100000){
-      Serial.println("ppp");
-      return 20;
-    }
-    else if(interval >= 60000){
-      Serial.println("pp");
-      return 31;
-    }
-    else if(interval >= 40000){
-      Serial.println("p");
-      return 42;
-    }
-    else if(interval >= 30000){
-      Serial.println("mp");
-      return 53;
-    }
-    else if(interval >= 21000){
-      Serial.println("mf");
-      return 64;
-    }
-    else if(interval >= 15000){
-      Serial.println("f");
-      return 80;
-    }
-    else{
-      Serial.println("ff-fff");
-      return 96;
-    }
-  #else
-    if(interval >= 100000){
-      return 20;
-    }
-    else if(interval >= 60000){
-      return 31;
-    }
-    else if(interval >= 40000){
-      return 42;
-    }
-    else if(interval >= 30000){
-      return 53;
-    }
-    else if(interval >= 21000){
-      return 64;
-    }
-    else if(interval >= 15000){
-      return 80;
-    }
-    return 96;
-  #endif
-}
-
-void noteOn(unsigned short keyNumber, unsigned long interval){
-    byte stat = 0x91;
-    byte velocity = 0x32;
-    Serial.write(stat);
+void noteOn(unsigned short keyNumber){
+    Serial.write(NOTE_ON);
     Serial.write(keys[keyNumber].pitch);
-    Serial.write(velocity);
+    Serial.write(VELOCITY);
 }
 
 void noteOff(unsigned short keyNumber){
-    byte stat = 0x81;
-    Serial.write(stat);
+    Serial.write(NOTE_OFF);
     Serial.write(keys[keyNumber].pitch);
     Serial.write(0);
 }
