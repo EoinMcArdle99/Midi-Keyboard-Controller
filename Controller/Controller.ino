@@ -83,7 +83,7 @@ void switchTwoClosed(unsigned short keyNumber){
   if(keys[keyNumber].state == KEY_GOING_DOWN){
     keys[keyNumber].state = KEY_DOWN;
     unsigned long interval = micros() - keys[keyNumber].t1;
-    noteOn(keyNumber);
+    noteOn(keyNumber, interval);
   }
 } 
 
@@ -94,14 +94,24 @@ void switchTwoOpen(unsigned short keyNumber){
   }
 }
 
-void noteOn(unsigned short keyNumber){
+void noteOn(unsigned short keyNumber, unsigned long interval){
     Serial.write(NOTE_ON);
     Serial.write(keys[keyNumber].pitch);
-    Serial.write(VELOCITY);
+    Serial.write(calculateVelocity(interval));
 }
 
 void noteOff(unsigned short keyNumber){
     Serial.write(NOTE_OFF);
     Serial.write(keys[keyNumber].pitch);
     Serial.write(0);
+}
+
+byte calculateVelocity(unsigned long interval){
+    if(interval >= 100000) return 20;
+    else if(interval >= 40000) return 31;
+    else if(interval >= 30000) return 42;
+    else if(interval >= 20000) return 53;
+    else if(interval >= 15000) return 64;
+    else if(interval >= 8000) return 80;
+    return 96;
 }
