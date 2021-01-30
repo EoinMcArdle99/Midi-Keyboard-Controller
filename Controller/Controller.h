@@ -39,3 +39,5 @@ struct KeyData{
   unsigned long t1;
   enum KeyState state;
 } keys[NUMBER_OF_KEYS];
+
+#endif
