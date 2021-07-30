@@ -25,6 +25,8 @@ const int ENABLE_G2B = 10;
 /* Keyboard inputs. */
 const int INPUTS[] = {9, 8, A1, 7, 5, 4, 3, 2};
 
+byte sample = 0;
+
 /* Possible states a key can be in. */
 enum KeyState{
   KEY_UP,

@@ -26,6 +26,12 @@ void setup(){
 
   /* Begin serial comms for midi output. */
   Serial.begin(BAUD_RATE);
+
+  Serial.write(0xC0);
+  Serial.write(0);
+  Serial.write(0xE0);
+  Serial.write(0x00);
+  Serial.write(0x60);
 }
 
 /* Poll for key presses. */
@@ -95,9 +101,11 @@ void switchTwoOpen(unsigned short keyNumber){
 }
 
 void noteOn(unsigned short keyNumber, unsigned long interval){
+    byte vel = 30;
     Serial.write(NOTE_ON);
     Serial.write(keys[keyNumber].pitch);
-    Serial.write(calculateVelocity(interval));
+    //Serial.write(calculateVelocity(interval));
+    Serial.write(vel);
 }
 
 void noteOff(unsigned short keyNumber){
