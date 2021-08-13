@@ -27,11 +27,8 @@ void setup(){
   /* Begin serial comms for midi output. */
   Serial.begin(BAUD_RATE);
 
-  Serial.write(0xC0);
-  Serial.write(0);
-  Serial.write(0xE0);
-  Serial.write(0x00);
-  Serial.write(0x60);
+  selectInstrument();
+  setPitchBend();
 }
 
 /* Poll for key presses. */
@@ -76,7 +73,7 @@ void keySetup(){
 
 void switchOneClosed(unsigned short keyNumber){
   if(keys[keyNumber].state == KEY_UP){
-    keys[keyNumber].t1 = micros();
+    keys[keyNumber].t1 = millis();
     keys[keyNumber].state = KEY_GOING_DOWN;
   }
 }
@@ -88,7 +85,7 @@ void switchOneOpen(unsigned short keyNumber){
 void switchTwoClosed(unsigned short keyNumber){
   if(keys[keyNumber].state == KEY_GOING_DOWN){
     keys[keyNumber].state = KEY_DOWN;
-    unsigned long interval = micros() - keys[keyNumber].t1;
+    unsigned long interval = millis() - keys[keyNumber].t1;
     noteOn(keyNumber, interval);
   }
 } 
@@ -104,8 +101,7 @@ void noteOn(unsigned short keyNumber, unsigned long interval){
     byte vel = 30;
     Serial.write(NOTE_ON);
     Serial.write(keys[keyNumber].pitch);
-    //Serial.write(calculateVelocity(interval));
-    Serial.write(vel);
+    Serial.write(calculateVelocity(interval));
 }
 
 void noteOff(unsigned short keyNumber){
@@ -114,12 +110,32 @@ void noteOff(unsigned short keyNumber){
     Serial.write(0);
 }
 
+void selectInstrument(){
+  Serial.write(0xC0);
+  Serial.write(0x00);
+}
+
+void setPitchBend(){
+  Serial.write(0xE0);
+  Serial.write(0x00);
+  Serial.write(0x60);
+}
+
 byte calculateVelocity(unsigned long interval){
-    if(interval >= 100000) return 20;
-    else if(interval >= 40000) return 31;
-    else if(interval >= 30000) return 42;
-    else if(interval >= 20000) return 53;
-    else if(interval >= 15000) return 64;
-    else if(interval >= 8000) return 80;
-    return 96;
+  const int result = 65 - (interval / 6);
+  if( result < 0) {
+    return 0;
+  }
+  return result;
+}
+
+int curve(unsigned long interval) {
+  if (interval > 400) {
+    return 0;
+  }
+  int num1 = (int) interval - 400;
+  int num = pow(num1, 2);
+
+  //const int result = (pow((interval - 300), 2) / 1000);
+  return num / 1200;
 }
