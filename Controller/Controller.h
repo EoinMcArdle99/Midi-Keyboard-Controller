@@ -1,17 +1,13 @@
 #ifndef _CONTROLLER_H
 #define _CONTROLLER_H
 
+#include "Midi.h"
+
 /* Keyboard info */
 const int NUMBER_OF_DECODERS = 3;
 const int NUMBER_OF_KEYS = 88;
 const int NUMBER_OF_DECODER_OUTPUTS = 8;
 const int NUMBER_OF_KEYS_PER_OUTPUT = 4;
-
-/* Midi info */
-const byte NOTE_ON = 0x90;
-const byte NOTE_OFF = 0x80;
-const byte VELOCITY = 60;
-const unsigned short BAUD_RATE = 31250;
 
 /* Select Key Bank (4 notes) */
 const int SELECT_A = A0;
@@ -24,8 +20,6 @@ const int ENABLE_G2B = 10;
 
 /* Keyboard inputs. */
 const int INPUTS[] = {9, 8, A1, 7, 5, 4, 3, 2};
-
-byte sample = 0;
 
 /* Possible states a key can be in. */
 enum KeyState{
