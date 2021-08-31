@@ -1,8 +1,6 @@
 #ifndef _CONTROLLER_H
 #define _CONTROLLER_H
 
-#include "Midi.h"
-
 /* Keyboard info */
 const int NUMBER_OF_DECODERS = 3;
 const int NUMBER_OF_KEYS = 88;
@@ -22,7 +20,7 @@ const int ENABLE_G2B = 10;
 const int INPUTS[] = {9, 8, A1, 7, 5, 4, 3, 2};
 
 /* Possible states a key can be in. */
-enum KeyState{
+enum KeyStates {
   KEY_UP,
   KEY_DOWN,
   KEY_GOING_DOWN,
@@ -32,8 +30,8 @@ enum KeyState{
 /* Represents each key on board. */
 struct KeyData{
   byte pitch;
-  unsigned long t1;
-  enum KeyState state;
+  u32 timePressed;
+  enum KeyStates state;
 } keys[NUMBER_OF_KEYS];
 
 #endif
