@@ -19,6 +19,10 @@ const int ENABLE_G2B = 10;
 /* Keyboard inputs. */
 const int INPUTS[] = {9, 8, A1, 7, 5, 4, 3, 2};
 
+/* Sustain pedal */
+const int SUSTAIN = A2;
+bool sustainOn = false;
+
 /* Possible states a key can be in. */
 enum KeyStates {
   KEY_UP,

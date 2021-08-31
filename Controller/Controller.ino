@@ -13,6 +13,8 @@ void setup() {
   pinMode(ENABLE_G2A, OUTPUT);
   pinMode(ENABLE_G2B, OUTPUT);
 
+  pinMode(SUSTAIN, INPUT_PULLUP);
+
   setPullUpInputPins();
   setKeyPitchesAndCurrentState();
 
@@ -48,13 +50,15 @@ void setPullUpInputPins() {
 
 void setKeyPitchesAndCurrentState() {
   for (int i = 0; i < NUMBER_OF_KEYS; i++) {
-    keys[i].pitch = i + 21;
+    const u16 PITCH_OFFSET = 21;
+    keys[i].pitch = i + PITCH_OFFSET;
     keys[i].state = KEY_UP;
   }
 }
 
 void loop() {
-  u16 decoderIndex, selectedBank,keyNumber;
+  u16 decoderIndex, selectedBank, keyNumber;
+  handleSustain();
   for (decoderIndex = 0, keyNumber = 0; decoderIndex < NUMBER_OF_DECODERS; decoderIndex++) {
     selectDecoder(decoderIndex);
     const u16 numBanksInDecoder = getNumBanksInDecoder(decoderIndex);
@@ -65,6 +69,23 @@ void loop() {
         readKey(i, keyNumber);
       }
     }
+  }
+}
+
+void handleSustain() {
+  const byte CTRL = 0xB0;
+  const byte SUSTAIN_CTRL = 0x40;
+  if((digitalRead(SUSTAIN) == LOW) && !sustainOn){
+    Serial.write(CTRL);
+    Serial.write(SUSTAIN_CTRL);
+    Serial.write(64);
+    sustainOn = true;
+  }
+  else if(digitalRead(SUSTAIN) != LOW && sustainOn){
+    Serial.write(CTRL);
+    Serial.write(SUSTAIN_CTRL);
+    Serial.write(0);
+    sustainOn = false;
   }
 }
 
